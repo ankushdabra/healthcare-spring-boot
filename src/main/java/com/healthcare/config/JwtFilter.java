@@ -1,7 +1,5 @@
 package com.healthcare.config;
 
-import com.healthcare.entity.UserEntity;
-import com.healthcare.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,11 +17,9 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
 
-    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepository) {
+    public JwtFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -37,12 +33,11 @@ public class JwtFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             String email = jwtUtil.getEmail(token);
+            String role = jwtUtil.getRole(token);
 
-            UserEntity userEntity = userRepository.findByEmail(email).orElse(null);
-
-            if (userEntity != null) {
+            if (email != null && role != null) {
                 SimpleGrantedAuthority authority =
-                        new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name());
+                        new SimpleGrantedAuthority("ROLE_" + role);
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
@@ -67,4 +62,3 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
 }
-

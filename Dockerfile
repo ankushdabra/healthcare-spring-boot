@@ -1,16 +1,19 @@
 # ---------- BUILD STAGE ----------
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
 COPY pom.xml .
-RUN mvn dependency:go-offline
+# dependency:go-offline is often problematic with some plugins/configurations
+# We'll rely on the package step to download dependencies.
+# To optimize caching, we could use 'mvn dependency:resolve' but it's not strictly necessary if we accept re-downloading on pom changes.
+RUN mvn dependency:resolve
 
 COPY src ./src
 RUN mvn clean package -DskipTests
 
 # ---------- RUNTIME STAGE ----------
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 

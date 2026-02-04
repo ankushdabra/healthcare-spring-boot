@@ -16,9 +16,10 @@ public class JwtUtil {
 
     private static final long EXPIRY = 86400000; // 1 day
 
-    public String generateToken(String email) {
+    public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRY))
                 .signWith(
@@ -36,5 +37,13 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
     }
-}
 
+    public String getRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+}

@@ -5,7 +5,6 @@ import com.healthcare.dto.DoctorDetailResponseDto;
 import com.healthcare.dto.DoctorResponseDto;
 import com.healthcare.entity.DoctorAvailabilityEntity;
 import com.healthcare.entity.DoctorEntity;
-import com.healthcare.enums.Role;
 import com.healthcare.repository.DoctorAvailabilityRepository;
 import com.healthcare.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ public class DoctorService {
     public List<DoctorResponseDto> getAllDoctors() {
         return doctorRepository.findAll()
                 .stream()
-                .filter(doctor -> doctor.getUserEntity().getRole().equals(Role.DOCTOR))
                 .map(doctor -> DoctorResponseDto.builder()
                         .id(doctor.getId())
                         .name(doctor.getUserEntity().getName())
@@ -54,10 +52,10 @@ public class DoctorService {
         return getDoctorDetailResponseDto(doctor, availabilityDtos);
     }
 
-    private static DoctorDetailResponseDto getDoctorDetailResponseDto(DoctorEntity doctor, List<DoctorAvailabilityDto> availabilityDtos) {
+    private DoctorDetailResponseDto getDoctorDetailResponseDto(DoctorEntity doctor, List<DoctorAvailabilityDto> availabilityDtos) {
         DoctorDetailResponseDto response = new DoctorDetailResponseDto();
         response.setId(doctor.getId());
-        response.setName(doctor.getName());
+        response.setName(doctor.getUserEntity().getName());
         response.setSpecialization(doctor.getSpecialization());
         response.setQualification(doctor.getQualification());
         response.setExperience(doctor.getExperience());

@@ -1,7 +1,7 @@
 package com.healthcare.service;
 
 import com.healthcare.config.JwtUtil;
-import com.healthcare.dto.LoginRequest;
+import com.healthcare.dto.LoginRequestDto;
 import com.healthcare.entity.UserEntity;
 import com.healthcare.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +20,7 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public String login(LoginRequest request) {
+    public String login(LoginRequestDto request) {
         UserEntity userEntity = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

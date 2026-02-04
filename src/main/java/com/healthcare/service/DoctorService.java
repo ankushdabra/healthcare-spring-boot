@@ -1,19 +1,28 @@
 package com.healthcare.service;
 
+import com.healthcare.dto.DoctorAvailabilityDto;
+import com.healthcare.dto.DoctorDetailResponseDto;
 import com.healthcare.dto.DoctorResponseDto;
-import com.healthcare.entity.Role;
+import com.healthcare.entity.DoctorAvailabilityEntity;
+import com.healthcare.entity.DoctorEntity;
+import com.healthcare.enums.Role;
+import com.healthcare.repository.DoctorAvailabilityRepository;
 import com.healthcare.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
+    private final DoctorAvailabilityRepository availabilityRepository;
 
-    public DoctorService(DoctorRepository doctorRepository) {
+
+    public DoctorService(DoctorRepository doctorRepository, DoctorAvailabilityRepository availabilityRepository) {
         this.doctorRepository = doctorRepository;
+        this.availabilityRepository = availabilityRepository;
     }
 
     public List<DoctorResponseDto> getAllDoctors() {
@@ -28,5 +37,44 @@ public class DoctorService {
                         .consultationFee(doctor.getConsultationFee())
                         .build())
                 .toList();
+    }
+
+    public DoctorDetailResponseDto getDoctorDetail(UUID doctorId) {
+
+        DoctorEntity doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        List<DoctorAvailabilityEntity> availabilityEntities =
+                availabilityRepository.findByDoctorId(doctorId);
+
+        List<DoctorAvailabilityDto> availabilityDtos =
+                availabilityEntities.stream().map(this::mapAvailability)
+                        .toList();
+
+        return getDoctorDetailResponseDto(doctor, availabilityDtos);
+    }
+
+    private static DoctorDetailResponseDto getDoctorDetailResponseDto(DoctorEntity doctor, List<DoctorAvailabilityDto> availabilityDtos) {
+        DoctorDetailResponseDto response = new DoctorDetailResponseDto();
+        response.setId(doctor.getId());
+        response.setName(doctor.getName());
+        response.setSpecialization(doctor.getSpecialization());
+        response.setQualification(doctor.getQualification());
+        response.setExperience(doctor.getExperience());
+        response.setRating(doctor.getRating());
+        response.setConsultationFee(doctor.getConsultationFee());
+        response.setAbout(doctor.getAbout());
+        response.setClinicAddress(doctor.getClinicAddress());
+        response.setProfileImage(doctor.getProfileImage());
+        response.setAvailability(availabilityDtos);
+        return response;
+    }
+
+    private DoctorAvailabilityDto mapAvailability(DoctorAvailabilityEntity entity) {
+        DoctorAvailabilityDto dto = new DoctorAvailabilityDto();
+        dto.setDay(entity.getDay().toString());
+        dto.setStartTime(entity.getStartTime().toString());
+        dto.setEndTime(entity.getEndTime().toString());
+        return dto;
     }
 }

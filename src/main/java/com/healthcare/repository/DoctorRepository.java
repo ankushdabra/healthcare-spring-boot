@@ -1,9 +1,9 @@
 package com.healthcare.repository;
 
-import com.healthcare.entity.Doctor;
+import com.healthcare.entity.DoctorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
+public interface DoctorRepository extends JpaRepository<DoctorEntity, UUID> {
 }

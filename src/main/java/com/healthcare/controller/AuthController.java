@@ -1,6 +1,6 @@
 package com.healthcare.controller;
 
-import com.healthcare.dto.LoginRequest;
+import com.healthcare.dto.LoginRequestDto;
 import com.healthcare.service.AuthService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +18,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody LoginRequest request) {
+    public Map<String, String> login(@RequestBody LoginRequestDto request) {
         return Map.of("token", authService.login(request));
     }
 }

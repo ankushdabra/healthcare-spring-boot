@@ -1,4 +1,4 @@
-package com.healthcare.config;
+package com.healthcare.config.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

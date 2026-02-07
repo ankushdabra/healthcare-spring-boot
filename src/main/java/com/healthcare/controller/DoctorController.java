@@ -3,6 +3,8 @@ package com.healthcare.controller;
 import com.healthcare.dto.DoctorDetailResponseDto;
 import com.healthcare.dto.DoctorResponseDto;
 import com.healthcare.service.DoctorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @RequestMapping("/api/doctors")
 public class DoctorController {
 
+    private static final Logger logger = LoggerFactory.getLogger(DoctorController.class);
     private final DoctorService doctorService;
 
     public DoctorController(DoctorService doctorService) {
@@ -25,13 +28,15 @@ public class DoctorController {
 
     @PreAuthorize("hasRole('PATIENT')")
     @GetMapping
-    public List<DoctorResponseDto> getAllDoctors() {
-        return doctorService.getAllDoctors();
+    public ResponseEntity<List<DoctorResponseDto>> getAllDoctors() {
+        logger.info("Fetching all doctors list");
+        return ResponseEntity.ok(doctorService.getAllDoctors());
     }
 
     @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/{doctorId}")
     public ResponseEntity<DoctorDetailResponseDto> getDoctorDetail(@PathVariable UUID doctorId) {
+        logger.info("Fetching details for doctor ID: {}", doctorId);
         return ResponseEntity.ok(doctorService.getDoctorDetail(doctorId));
     }
 }

@@ -1,5 +1,6 @@
 package com.healthcare.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.healthcare.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ public class UserEntity {
     private String email;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)

@@ -9,6 +9,7 @@ import com.healthcare.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,5 +52,11 @@ public class AuthController {
 
         Map<String, Object> response = authService.registerUser(user, request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout() {
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Logged out successfully"));
     }
 }

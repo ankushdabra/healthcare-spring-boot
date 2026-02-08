@@ -16,9 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class AppointmentResponseDto {
     private UUID id;
-    private UUID doctorId;
-    private String doctorName;
-    private String specialization;
+    private DoctorDetailResponseDto doctor;
     private LocalDate appointmentDate;
     private LocalTime appointmentTime;
     private AppointmentStatus status;

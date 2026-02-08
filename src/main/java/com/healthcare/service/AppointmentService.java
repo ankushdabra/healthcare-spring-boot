@@ -2,12 +2,16 @@ package com.healthcare.service;
 
 import com.healthcare.dto.AppointmentRequestDto;
 import com.healthcare.dto.AppointmentResponseDto;
+import com.healthcare.dto.DoctorAvailabilityDto;
+import com.healthcare.dto.DoctorDetailResponseDto;
 import com.healthcare.entity.AppointmentEntity;
+import com.healthcare.entity.DoctorAvailabilityEntity;
 import com.healthcare.entity.DoctorEntity;
 import com.healthcare.entity.PatientEntity;
 import com.healthcare.entity.UserEntity;
 import com.healthcare.enums.AppointmentStatus;
 import com.healthcare.repository.AppointmentRepository;
+import com.healthcare.repository.DoctorAvailabilityRepository;
 import com.healthcare.repository.DoctorRepository;
 import com.healthcare.repository.PatientRepository;
 import org.springframework.stereotype.Service;
@@ -23,12 +27,14 @@ public class AppointmentService {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final UserService userService;
+    private final DoctorAvailabilityRepository doctorAvailabilityRepository;
 
-    public AppointmentService(AppointmentRepository repository, PatientRepository patientRepository, DoctorRepository doctorRepository, UserService userService) {
+    public AppointmentService(AppointmentRepository repository, PatientRepository patientRepository, DoctorRepository doctorRepository, UserService userService, DoctorAvailabilityRepository doctorAvailabilityRepository) {
         this.repository = repository;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.userService = userService;
+        this.doctorAvailabilityRepository = doctorAvailabilityRepository;
     }
 
     public void bookAppointment(AppointmentRequestDto request) {
@@ -84,14 +90,39 @@ public class AppointmentService {
     }
 
     private AppointmentResponseDto mapToDto(AppointmentEntity entity) {
+        DoctorEntity doctor = entity.getDoctor();
+        List<DoctorAvailabilityEntity> availabilityEntities = doctorAvailabilityRepository.findByDoctorId(doctor.getId());
+        List<DoctorAvailabilityDto> availabilityDtos = availabilityEntities.stream()
+                .map(this::mapAvailability)
+                .toList();
+
+        DoctorDetailResponseDto doctorDto = DoctorDetailResponseDto.builder()
+                .id(doctor.getId())
+                .name(doctor.getUser().getName())
+                .specialization(doctor.getSpecialization())
+                .qualification(doctor.getQualification())
+                .experience(doctor.getExperience())
+                .rating(doctor.getRating())
+                .consultationFee(doctor.getConsultationFee())
+                .about(doctor.getAbout())
+                .clinicAddress(doctor.getClinicAddress())
+                .profileImage(doctor.getProfileImage())
+                .availability(availabilityDtos)
+                .build();
+
         return AppointmentResponseDto.builder()
                 .id(entity.getId())
-                .doctorId(entity.getDoctor().getId())
-                .doctorName(entity.getDoctor().getName())
-                .specialization(entity.getDoctor().getSpecialization())
+                .doctor(doctorDto)
                 .appointmentDate(entity.getAppointmentDate())
                 .appointmentTime(entity.getAppointmentTime())
                 .status(entity.getStatus())
+                .build();
+    }
+
+    private DoctorAvailabilityDto mapAvailability(DoctorAvailabilityEntity entity) {
+        return DoctorAvailabilityDto.builder().day(String.valueOf(entity.getDay()))
+                .startTime(String.valueOf(entity.getStartTime()))
+                .endTime(String.valueOf(entity.getEndTime()))
                 .build();
     }
 }

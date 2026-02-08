@@ -32,6 +32,8 @@ public class DoctorService {
                         .specialization(doctor.getSpecialization())
                         .experience(doctor.getExperience())
                         .consultationFee(doctor.getConsultationFee())
+                        .rating(doctor.getRating())
+                        .profileImage(doctor.getProfileImage())
                         .build())
                 .toList();
     }

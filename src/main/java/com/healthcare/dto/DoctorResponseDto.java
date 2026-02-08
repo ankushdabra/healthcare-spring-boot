@@ -18,4 +18,6 @@ public class DoctorResponseDto {
     private String specialization;
     private Integer experience;
     private BigDecimal consultationFee;
+    private BigDecimal rating;
+    private String profileImage;
 }

@@ -41,6 +41,7 @@ public class PrescriptionService {
 
         PrescriptionEntity prescription = PrescriptionEntity.builder()
                 .patient(appointment.getPatient().getId())
+                .doctor(request.getDoctorId())
                 .appointment(appointment)
                 .medications(request.getMedications())
                 .instructions(request.getInstructions())

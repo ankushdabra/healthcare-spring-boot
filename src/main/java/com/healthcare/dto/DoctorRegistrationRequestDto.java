@@ -2,7 +2,6 @@ package com.healthcare.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -36,4 +37,6 @@ public class DoctorRegistrationRequestDto {
     private String about;
     private String clinicAddress;
     private String profileImage;
+    
+    private Map<String, List<TimeSlotDto>> availability;
 }

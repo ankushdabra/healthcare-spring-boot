@@ -7,6 +7,7 @@ import com.healthcare.dto.TimeSlotDto;
 import com.healthcare.entity.DoctorAvailabilityEntity;
 import com.healthcare.entity.DoctorEntity;
 import com.healthcare.entity.UserEntity;
+import com.healthcare.enums.DayOfWeekEnum;
 import com.healthcare.enums.Role;
 import com.healthcare.repository.DoctorAvailabilityRepository;
 import com.healthcare.repository.DoctorRepository;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -103,6 +106,22 @@ public class DoctorService {
                 .rating(BigDecimal.ZERO)
                 .build();
 
-        doctorRepository.save(doctor);
+        DoctorEntity savedDoctor = doctorRepository.save(doctor);
+
+        if (request.getAvailability() != null && !request.getAvailability().isEmpty()) {
+            List<DoctorAvailabilityEntity> availabilityEntities = new ArrayList<>();
+            for (Map.Entry<String, List<TimeSlotDto>> entry : request.getAvailability().entrySet()) {
+                DayOfWeekEnum day = DayOfWeekEnum.valueOf(entry.getKey().toUpperCase());
+                for (TimeSlotDto timeSlot : entry.getValue()) {
+                    availabilityEntities.add(DoctorAvailabilityEntity.builder()
+                            .doctor(savedDoctor)
+                            .day(day)
+                            .startTime(LocalTime.parse(timeSlot.getStartTime()))
+                            .endTime(LocalTime.parse(timeSlot.getEndTime()))
+                            .build());
+                }
+            }
+            availabilityRepository.saveAll(availabilityEntities);
+        }
     }
 }

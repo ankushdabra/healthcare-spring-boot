@@ -28,12 +28,14 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorAvailabilityRepository availabilityRepository;
     private final AvailabilityMapper availabilityMapper;
+    private final UserService userService;
 
     public DoctorService(DoctorRepository doctorRepository, DoctorAvailabilityRepository availabilityRepository,
-                         AvailabilityMapper availabilityMapper) {
+                         AvailabilityMapper availabilityMapper, UserService userService) {
         this.doctorRepository = doctorRepository;
         this.availabilityRepository = availabilityRepository;
         this.availabilityMapper = availabilityMapper;
+        this.userService = userService;
     }
 
     public List<DoctorResponseDto> getAllDoctors() {
@@ -71,6 +73,14 @@ public class DoctorService {
                 .profileImage(doctor.getProfileImage())
                 .availability(availabilityMap)
                 .build();
+    }
+
+    public DoctorDetailResponseDto getDoctorProfile() {
+        UserEntity user = userService.getCurrentUser();
+        DoctorEntity doctor = doctorRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+        
+        return getDoctorDetail(doctor.getId());
     }
 
     @Transactional

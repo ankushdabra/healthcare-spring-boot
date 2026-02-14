@@ -24,6 +24,4 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
     @Query("SELECT a FROM AppointmentEntity a WHERE a.doctor.id = :doctorId AND (a.appointmentDate = :currentDate AND a.appointmentTime >= :currentTime) ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
     List<AppointmentEntity> findTodayAppointmentsForDoctor(@Param("doctorId") UUID doctorId, @Param("currentDate") LocalDate currentDate, @Param("currentTime") LocalTime currentTime);
 
-    List<AppointmentEntity> findByPatientId(UUID patientId);
-    List<AppointmentEntity> findByDoctorId(UUID doctorId);
 }

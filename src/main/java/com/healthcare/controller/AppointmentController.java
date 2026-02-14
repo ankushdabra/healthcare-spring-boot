@@ -41,6 +41,13 @@ public class AppointmentController {
         return ResponseEntity.ok(appointments);
     }
 
+    @PreAuthorize("hasRole('DOCTOR')")
+    @GetMapping("/today")
+    public ResponseEntity<List<AppointmentResponseDto>> getTodayAppointments() {
+        List<AppointmentResponseDto> appointments = appointmentService.getTodayAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
     @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR')")
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponseDto> getAppointmentById(@PathVariable UUID id) {

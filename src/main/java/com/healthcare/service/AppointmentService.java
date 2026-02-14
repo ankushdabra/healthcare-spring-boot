@@ -20,6 +20,8 @@ import com.healthcare.util.AvailabilityMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -74,21 +76,41 @@ public class AppointmentService {
     @Transactional(readOnly = true)
     public List<AppointmentResponseDto> getAppointments() {
         UserEntity user = userService.getCurrentUser();
+        List<AppointmentEntity> appointments;
+        LocalDate currentDate = LocalDate.now();
+        LocalTime currentTime = LocalTime.now();
 
         if (user.getRole() == Role.DOCTOR) {
             DoctorEntity doctor = doctorRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
-            return repository.findByDoctorId(doctor.getId()).stream()
-                    .map(this::mapToDto)
-                    .collect(Collectors.toList());
+            appointments = repository.findUpcomingAppointmentsForDoctor(doctor.getId(), currentDate, currentTime);
         } else {
             PatientEntity patient = patientRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new RuntimeException("Patient profile not found"));
-
-            return repository.findByPatientId(patient.getId()).stream()
-                    .map(this::mapToDto)
-                    .collect(Collectors.toList());
+            appointments = repository.findUpcomingAppointmentsForPatient(patient.getId(), currentDate, currentTime);
         }
+
+        return appointments.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentResponseDto> getTodayAppointments() {
+        UserEntity user = userService.getCurrentUser();
+        if (user.getRole() != Role.DOCTOR) {
+            throw new RuntimeException("Access denied: Only doctors can view today's appointments");
+        }
+
+        DoctorEntity doctor = doctorRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+        LocalDate currentDate = LocalDate.now();
+        List<AppointmentEntity> appointments = repository.findTodayAppointmentsForDoctor(doctor.getId(), currentDate);
+
+        return appointments.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

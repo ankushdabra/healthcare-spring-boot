@@ -15,10 +15,10 @@ import java.util.UUID;
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, UUID> {
     boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(UUID doctorId, LocalDate appointmentDate, LocalTime appointmentTime);
     
-    @Query("SELECT a FROM AppointmentEntity a WHERE a.patient.id = :patientId AND (a.appointmentDate = :currentDate AND a.appointmentTime >= :currentTime) ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
+    @Query("SELECT a FROM AppointmentEntity a WHERE a.patient.id = :patientId AND (a.appointmentDate >= :currentDate AND a.appointmentTime >= :currentTime) ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
     List<AppointmentEntity> findUpcomingAppointmentsForPatient(@Param("patientId") UUID patientId, @Param("currentDate") LocalDate currentDate, @Param("currentTime") LocalTime currentTime);
 
-    @Query("SELECT a FROM AppointmentEntity a WHERE a.doctor.id = :doctorId AND (a.appointmentDate = :currentDate AND a.appointmentTime >= :currentTime) ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
+    @Query("SELECT a FROM AppointmentEntity a WHERE a.doctor.id = :doctorId AND (a.appointmentDate >= :currentDate AND a.appointmentTime >= :currentTime) ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")
     List<AppointmentEntity> findUpcomingAppointmentsForDoctor(@Param("doctorId") UUID doctorId, @Param("currentDate") LocalDate currentDate, @Param("currentTime") LocalTime currentTime);
 
     @Query("SELECT a FROM AppointmentEntity a WHERE a.doctor.id = :doctorId AND (a.appointmentDate = :currentDate AND a.appointmentTime >= :currentTime) ORDER BY a.appointmentDate ASC, a.appointmentTime ASC")

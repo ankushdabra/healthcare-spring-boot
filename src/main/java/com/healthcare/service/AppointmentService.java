@@ -106,7 +106,8 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
         LocalDate currentDate = LocalDate.now();
-        List<AppointmentEntity> appointments = repository.findTodayAppointmentsForDoctor(doctor.getId(), currentDate);
+        LocalTime currentTime = LocalTime.now();
+        List<AppointmentEntity> appointments = repository.findTodayAppointmentsForDoctor(doctor.getId(), currentDate, currentTime);
 
         return appointments.stream()
                 .map(this::mapToDto)

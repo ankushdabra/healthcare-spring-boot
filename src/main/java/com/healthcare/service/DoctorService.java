@@ -7,7 +7,9 @@ import com.healthcare.dto.TimeSlotDto;
 import com.healthcare.entity.DoctorAvailabilityEntity;
 import com.healthcare.entity.DoctorEntity;
 import com.healthcare.entity.UserEntity;
+import com.healthcare.enums.AppointmentStatus;
 import com.healthcare.enums.DayOfWeekEnum;
+import com.healthcare.repository.AppointmentRepository;
 import com.healthcare.repository.DoctorAvailabilityRepository;
 import com.healthcare.repository.DoctorRepository;
 import com.healthcare.util.AvailabilityMapper;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -30,13 +33,15 @@ public class DoctorService {
     private final DoctorAvailabilityRepository availabilityRepository;
     private final AvailabilityMapper availabilityMapper;
     private final UserService userService;
+    private final AppointmentRepository appointmentRepository;
 
     public DoctorService(DoctorRepository doctorRepository, DoctorAvailabilityRepository availabilityRepository,
-                         AvailabilityMapper availabilityMapper, UserService userService) {
+                         AvailabilityMapper availabilityMapper, UserService userService, AppointmentRepository appointmentRepository) {
         this.doctorRepository = doctorRepository;
         this.availabilityRepository = availabilityRepository;
         this.availabilityMapper = availabilityMapper;
         this.userService = userService;
+        this.appointmentRepository = appointmentRepository;
     }
 
     public List<DoctorResponseDto> getAllDoctors() {
@@ -106,6 +111,15 @@ public class DoctorService {
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
         
         return getDoctorDetail(doctor.getId());
+    }
+
+    public BigDecimal getTodayEarnings() {
+        UserEntity user = userService.getCurrentUser();
+        DoctorEntity doctor = doctorRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+        
+        BigDecimal earnings = appointmentRepository.calculateEarningsForDoctor(doctor.getId(), LocalDate.now(), AppointmentStatus.COMPLETED);
+        return earnings != null ? earnings : BigDecimal.ZERO;
     }
 
     @Transactional

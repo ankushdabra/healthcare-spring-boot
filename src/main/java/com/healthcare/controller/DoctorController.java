@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,5 +39,12 @@ public class DoctorController {
     public ResponseEntity<DoctorDetailResponseDto> getDoctorDetail(@PathVariable UUID doctorId) {
         logger.info("Fetching details for doctor ID: {}", doctorId);
         return ResponseEntity.ok(doctorService.getDoctorDetail(doctorId));
+    }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    @GetMapping("/earnings/today")
+    public ResponseEntity<BigDecimal> getTodayEarnings() {
+        logger.info("Fetching today's earnings for current doctor");
+        return ResponseEntity.ok(doctorService.getTodayEarnings());
     }
 }

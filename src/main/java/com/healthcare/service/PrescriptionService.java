@@ -3,17 +3,21 @@ package com.healthcare.service;
 import com.healthcare.dto.PrescriptionRequestDto;
 import com.healthcare.dto.PrescriptionResponseDto;
 import com.healthcare.entity.AppointmentEntity;
+import com.healthcare.entity.DoctorEntity;
 import com.healthcare.entity.PatientEntity;
 import com.healthcare.entity.PrescriptionEntity;
 import com.healthcare.entity.UserEntity;
 import com.healthcare.enums.AppointmentStatus;
+import com.healthcare.enums.Role;
 import com.healthcare.repository.AppointmentRepository;
+import com.healthcare.repository.DoctorRepository;
 import com.healthcare.repository.PrescriptionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,14 +30,17 @@ public class PrescriptionService {
     private final AppointmentRepository appointmentRepository;
     private final UserService userService;
     private final PatientService patientService;
+    private final DoctorRepository doctorRepository;
 
     public PrescriptionService(PrescriptionRepository prescriptionRepository,
                                AppointmentRepository appointmentRepository,
-                               UserService userService, PatientService patientService) {
+                               UserService userService, PatientService patientService,
+                               DoctorRepository doctorRepository) {
         this.prescriptionRepository = prescriptionRepository;
         this.appointmentRepository = appointmentRepository;
         this.userService = userService;
         this.patientService = patientService;
+        this.doctorRepository = doctorRepository;
     }
 
     public void createPrescription(PrescriptionRequestDto request) {
@@ -60,9 +67,19 @@ public class PrescriptionService {
     @Transactional(readOnly = true)
     public List<PrescriptionResponseDto> getMyPrescriptions() {
         UserEntity currentUser = userService.getCurrentUser();
-        List<PrescriptionEntity> prescriptions = prescriptionRepository.findByPatient(patientService.getPatientByUserId(currentUser.getId())
-                .map(PatientEntity::getId)
-                .orElse(null));
+        List<PrescriptionEntity> prescriptions;
+
+        if (currentUser.getRole() == Role.PATIENT) {
+            prescriptions = prescriptionRepository.findByPatient(patientService.getPatientByUserId(currentUser.getId())
+                    .map(PatientEntity::getId)
+                    .orElse(null));
+        } else if (currentUser.getRole() == Role.DOCTOR) {
+            DoctorEntity doctor = doctorRepository.findByUserId(currentUser.getId())
+                    .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+            prescriptions = prescriptionRepository.findByDoctor(doctor.getId());
+        } else {
+            prescriptions = Collections.emptyList();
+        }
         
         return prescriptions.stream()
                 .map(this::mapToDto)

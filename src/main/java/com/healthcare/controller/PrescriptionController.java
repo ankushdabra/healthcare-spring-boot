@@ -31,13 +31,13 @@ public class PrescriptionController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("hasAnyRole('PATIENT','DOCTOR')")
     public ResponseEntity<List<PrescriptionResponseDto>> getMyPrescriptions() {
         return ResponseEntity.ok(prescriptionService.getMyPrescriptions());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('PATIENT')")
+    @PreAuthorize("hasAnyRole('PATIENT','DOCTOR')")
     public ResponseEntity<PrescriptionResponseDto> getPrescriptionById(@PathVariable UUID id) {
         return ResponseEntity.ok(prescriptionService.getPrescriptionById(id));
     }

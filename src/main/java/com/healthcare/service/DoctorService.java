@@ -109,10 +109,9 @@ public class DoctorService {
         UserEntity user = userService.getCurrentUser();
         DoctorEntity doctor = doctorRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
-        
+
         return getDoctorDetail(doctor.getId());
     }
-
 
     @Transactional
     public void createDoctorProfile(UserEntity user, DoctorRegistrationRequestDto request) {

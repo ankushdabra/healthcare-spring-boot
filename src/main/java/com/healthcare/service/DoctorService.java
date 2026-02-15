@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,15 +42,26 @@ public class DoctorService {
     public List<DoctorResponseDto> getAllDoctors() {
         return doctorRepository.findAll()
                 .stream()
-                .map(doctor -> DoctorResponseDto.builder()
-                        .id(doctor.getId())
-                        .name(doctor.getUser().getName())
-                        .specialization(doctor.getSpecialization())
-                        .experience(doctor.getExperience())
-                        .consultationFee(doctor.getConsultationFee())
-                        .rating(doctor.getRating())
-                        .profileImage(doctor.getProfileImage())
-                        .build())
+                .map(doctor -> {
+                    List<DoctorAvailabilityEntity> availabilityEntities = availabilityRepository.findByDoctorId(doctor.getId());
+                    String nextAvailable = availabilityEntities.stream()
+                            .sorted(Comparator.comparing(DoctorAvailabilityEntity::getDay)
+                                    .thenComparing(DoctorAvailabilityEntity::getStartTime))
+                            .map(availability -> availability.getDay().name() + " " + availability.getStartTime())
+                            .findFirst()
+                            .orElse("Not Available");
+
+                    return DoctorResponseDto.builder()
+                            .id(doctor.getId())
+                            .name(doctor.getUser().getName())
+                            .specialization(doctor.getSpecialization())
+                            .experience(doctor.getExperience())
+                            .consultationFee(doctor.getConsultationFee())
+                            .rating(doctor.getRating())
+                            .profileImage(doctor.getProfileImage())
+                            .nextAvailable(nextAvailable)
+                            .build();
+                })
                 .toList();
     }
 

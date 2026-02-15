@@ -20,4 +20,5 @@ public class DoctorResponseDto {
     private BigDecimal consultationFee;
     private BigDecimal rating;
     private String profileImage;
+    private String nextAvailable;
 }

@@ -3,6 +3,7 @@ package com.healthcare.controller;
 import com.healthcare.dto.ApiResponse;
 import com.healthcare.dto.AppointmentRequestDto;
 import com.healthcare.dto.AppointmentResponseDto;
+import com.healthcare.dto.TodayAppointmentsResponseDto;
 import com.healthcare.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,8 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('DOCTOR')")
     @GetMapping("/today")
-    public ResponseEntity<List<AppointmentResponseDto>> getTodayAppointments() {
-        List<AppointmentResponseDto> appointments = appointmentService.getTodayAppointments();
+    public ResponseEntity<TodayAppointmentsResponseDto> getTodayAppointments() {
+        TodayAppointmentsResponseDto appointments = appointmentService.getTodayAppointments();
         return ResponseEntity.ok(appointments);
     }
 

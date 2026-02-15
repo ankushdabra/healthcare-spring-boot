@@ -4,6 +4,7 @@ import com.healthcare.dto.AppointmentRequestDto;
 import com.healthcare.dto.AppointmentResponseDto;
 import com.healthcare.dto.DoctorDetailResponseDto;
 import com.healthcare.dto.TimeSlotDto;
+import com.healthcare.dto.TodayAppointmentsResponseDto;
 import com.healthcare.dto.UserProfileDto;
 import com.healthcare.entity.AppointmentEntity;
 import com.healthcare.entity.DoctorAvailabilityEntity;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -101,7 +103,7 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDto> getTodayAppointments() {
+    public TodayAppointmentsResponseDto getTodayAppointments() {
         UserEntity user = userService.getCurrentUser();
         if (user.getRole() != Role.DOCTOR) {
             throw new RuntimeException("Access denied: Only doctors can view today's appointments");
@@ -115,9 +117,19 @@ public class AppointmentService {
         LocalTime currentTime = LocalTime.now(zoneId);
         List<AppointmentEntity> appointments = repository.findTodayAppointmentsForDoctor(doctor.getId(), currentDate, currentTime);
 
-        return appointments.stream()
+        List<AppointmentResponseDto> appointmentDtos = appointments.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
+
+        BigDecimal totalEarnings = repository.calculateEarningsForDoctor(doctor.getId(), currentDate, AppointmentStatus.COMPLETED);
+        if (totalEarnings == null) {
+            totalEarnings = BigDecimal.ZERO;
+        }
+
+        return TodayAppointmentsResponseDto.builder()
+                .appointments(appointmentDtos)
+                .totalEarnings(totalEarnings)
+                .build();
     }
 
     @Transactional(readOnly = true)

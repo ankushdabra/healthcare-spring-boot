@@ -113,14 +113,6 @@ public class DoctorService {
         return getDoctorDetail(doctor.getId());
     }
 
-    public BigDecimal getTodayEarnings() {
-        UserEntity user = userService.getCurrentUser();
-        DoctorEntity doctor = doctorRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
-        
-        BigDecimal earnings = appointmentRepository.calculateEarningsForDoctor(doctor.getId(), LocalDate.now(), AppointmentStatus.COMPLETED);
-        return earnings != null ? earnings : BigDecimal.ZERO;
-    }
 
     @Transactional
     public void createDoctorProfile(UserEntity user, DoctorRegistrationRequestDto request) {

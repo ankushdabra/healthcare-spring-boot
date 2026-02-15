@@ -40,11 +40,4 @@ public class DoctorController {
         logger.info("Fetching details for doctor ID: {}", doctorId);
         return ResponseEntity.ok(doctorService.getDoctorDetail(doctorId));
     }
-
-    @PreAuthorize("hasRole('DOCTOR')")
-    @GetMapping("/earnings/today")
-    public ResponseEntity<BigDecimal> getTodayEarnings() {
-        logger.info("Fetching today's earnings for current doctor");
-        return ResponseEntity.ok(doctorService.getTodayEarnings());
-    }
 }

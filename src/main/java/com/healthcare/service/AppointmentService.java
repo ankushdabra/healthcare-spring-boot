@@ -180,6 +180,8 @@ public class AppointmentService {
                 .age(entity.getPatient().getAge())
                 .gender(entity.getPatient().getGender())
                 .bloodGroup(entity.getPatient().getBloodGroup())
+                .weight(entity.getPatient().getWeight())
+                .height(entity.getPatient().getHeight())
                 .build();
 
         return AppointmentResponseDto.builder()
